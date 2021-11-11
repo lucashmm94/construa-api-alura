@@ -75,15 +75,23 @@ public class TopicoController {
 	// Garantir o commit no banco de dados
 	@Transactional
 	public ResponseEntity<TopicoDTO> put(@PathVariable Long id, @RequestBody @Valid AtualizacaoTopicoForm form) {
-		Topico topico = form.atualizar(id, repository);
-		return ResponseEntity.ok(new TopicoDTO(topico));
+		Optional <Topico> optional = repository.findById(id);
+		if(optional.isPresent()) {			
+			Topico topico = form.atualizar(id, repository);
+			return ResponseEntity.ok(new TopicoDTO(topico));
+		}
+		return ResponseEntity.notFound().build();
 	}
 
 	@Transactional
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> delete(@PathVariable Long id) {
-		repository.deleteById(id);
-		return ResponseEntity.ok().build();
+		Optional <Topico> optional = repository.findById(id);
+		if(optional.isPresent()) {	
+			repository.deleteById(id);
+			return ResponseEntity.ok().build();			
+		}
+		return ResponseEntity.notFound().build();
 	}
 
 }
