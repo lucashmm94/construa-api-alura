@@ -17,46 +17,56 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @Configuration
 public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
+
+	@Autowired
+	TokenService tokenService;
 	
 	@Autowired
 	private AutenticacaoService autenticacaoService;
-	
+
 	@Override
 	@Bean
 	protected AuthenticationManager authenticationManager() throws Exception {
-		//É iniciado ao subir a aplicação para fazer a autenticação manual
+		// É iniciado ao subir a aplicação para fazer a autenticação manual
 		return super.authenticationManager();
 	}
-	
-	//Configura de autenticacao
+
+	// Configura de autenticacao
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		//Sobe ao iniciar a aplicação
-		//Voce passa um service para autenticação que voce mesmo cria
-		//Um encoder para descriptografar a senha
+		// Sobe ao iniciar a aplicação
+		// Voce passa um service para autenticação que voce mesmo cria
+		// Um encoder para descriptografar a senha
 		auth.userDetailsService(autenticacaoService).passwordEncoder(new BCryptPasswordEncoder());
 	}
-	
-	//Configura autorização(url, perfil de acesso,oq é public ou oq restrito)
+
+	// Configura autorização(url, perfil de acesso,oq é public ou oq restrito)
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests() //autorirar requições
-		.antMatchers(HttpMethod.GET, "/topicos") .permitAll() //qual url filtra(permitir ou bloquear)
-		.antMatchers(HttpMethod.GET,"/topicos/*").permitAll()// Se nao falar o metodo http, libera tudo
-		.antMatchers(HttpMethod.POST,"/auth").permitAll() 
-		.anyRequest().authenticated() //Qualquer outra requisição tem que autenticar;
+		http.authorizeRequests() // autorirar requições
+				.antMatchers(HttpMethod.GET, "/topicos").permitAll() // qual url filtra(permitir ou bloquear)
+				.antMatchers(HttpMethod.GET, "/topicos/*").permitAll()// Se nao falar o metodo http, libera tudo
+				.antMatchers(HttpMethod.POST, "/auth").permitAll().anyRequest().authenticated() // Qualquer outra
+																								// requisição tem que
+																								// autenticar;
 //		.and().formLogin(); //Spring gerar formulario de autentição, cria sessao(nao ideal)
-		.and().csrf().disable() //Via token não precisa validar essa config anti hacker;
-		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) //Cria sessao stateless
-		.and().addFilterBefore(new AutenticacaoViaTokenFilter(), UsernamePasswordAuthenticationFilter.class);// Filtro para validar se o token é valido
+				.and().csrf().disable() // Via token não precisa validar essa config anti hacker;
+				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Cria sessao stateless
+				.and().addFilterBefore(new AutenticacaoViaTokenFilter(tokenService), UsernamePasswordAuthenticationFilter.class);// Filtro
+																														// para
+																														// validar
+																														// se
+																														// o
+																														// token
+																														// é
+																														// valido , antes de rodar autenticação pegar o filtro
 	}
-	
-	//Configura arquivos estasticos(js,css,imagens,etc).
+
+	// Configura arquivos estasticos(js,css,imagens,etc).
 	@Override
 	public void configure(WebSecurity web) throws Exception {
 		// TODO Auto-generated method stub
 		super.configure(web);
 	}
-	
 
 }

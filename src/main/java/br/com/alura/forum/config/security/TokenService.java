@@ -12,26 +12,31 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 @Service
 public class TokenService {
-	
+
 	@Value("${forum.jwt.expiration}")
 	private String expiration;
-	
+
 	@Value("${forum.jwt.secret}")
 	private String secret;
 
 	public String gerarToken(Authentication authentication) {
-		Usuario usuarioLogado = (Usuario)authentication.getPrincipal();
+		Usuario usuarioLogado = (Usuario) authentication.getPrincipal();
 		Date hoje = new Date();
-		Date dataExpiracao = new Date(hoje.getTime()+Long.parseLong(expiration));
-		
-		return Jwts.builder()
-				.setIssuer("API Forum Alura")
-				.setSubject(usuarioLogado.getId().toString())
-				.setIssuedAt(hoje)
-				.setExpiration(dataExpiracao)
-				.signWith(SignatureAlgorithm.HS256, secret)
-				.compact();
+		Date dataExpiracao = new Date(hoje.getTime() + Long.parseLong(expiration));
+
+		return Jwts.builder().setIssuer("API Forum Alura").setSubject(usuarioLogado.getId().toString())
+				.setIssuedAt(hoje).setExpiration(dataExpiracao).signWith(SignatureAlgorithm.HS256, secret).compact();
 	}
-	
+
+	public boolean isTokenValido(String token) {
+		try {
+			// Se tiver valido ele devolve um objeto de Claims, se nao devolve uma exception
+			Jwts.parser().setSigningKey(this.secret).parseClaimsJws(token);
+			return true;
+		} catch (Exception e) {
+			return false;
+
+		}
+	}
 
 }
