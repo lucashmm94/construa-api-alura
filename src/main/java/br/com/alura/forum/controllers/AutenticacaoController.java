@@ -27,6 +27,9 @@ public class AutenticacaoController {
 	@Autowired
 	private TokenService tokenService;
 	
+	
+	//Metodo para gerar token e devolver ao cliente
+	//Recebendo usuario e senha, gerando UsernamePasswordAuthenticationToken
 	@PostMapping
 	public ResponseEntity<TokenDTO> aunteticar(@RequestBody @Valid LoginForm form){
 		UsernamePasswordAuthenticationToken dadosLogin = form.converter();
@@ -34,6 +37,8 @@ public class AutenticacaoController {
 		try {
 			//Vai validar no AutenticacaoService(classe da logica de autenticação)
 			Authentication authentication = authManager.authenticate(dadosLogin);
+			
+			//Com o authManager, consigo extrair quem é o usuario,qual usuario pertence aquele token
 			String token = tokenService.gerarToken(authentication);
 			return ResponseEntity.ok(new TokenDTO(token,"Bearer"));
 			

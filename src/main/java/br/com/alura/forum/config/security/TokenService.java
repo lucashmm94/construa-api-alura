@@ -23,15 +23,26 @@ public class TokenService {
 		Usuario usuarioLogado = (Usuario) authentication.getPrincipal();
 		Date hoje = new Date();
 		Date dataExpiracao = new Date(hoje.getTime() + Long.parseLong(expiration));
+		System.out.println(secret);
 
-		return Jwts.builder().setIssuer("API Forum Alura").setSubject(usuarioLogado.getId().toString())
-				.setIssuedAt(hoje).setExpiration(dataExpiracao).signWith(SignatureAlgorithm.HS256, secret).compact();
+		return Jwts.builder()
+				.setIssuer("API Forum Alura")
+				.setSubject(usuarioLogado.getId().toString())
+				.setIssuedAt(hoje).setExpiration(dataExpiracao)
+				.signWith(SignatureAlgorithm.HS256, secret)
+                .compact();
 	}
 
+	
+	//Valida se o token ainda esta valido(não expirado)
 	public boolean isTokenValido(String token) {
 		try {
-			// Se tiver valido ele devolve um objeto de Claims, se nao devolve uma exception
-			Jwts.parser().setSigningKey(this.secret).parseClaimsJws(token);
+			// Parse transforma nosso token e compara com a secret
+			// parseClaimsJws retorna um objeto com informações do token
+			// Se tiver valido ele devolve um objeto de Claims, se cair na exception retorna false(token invalido)
+			Jwts.parser()
+				.setSigningKey(this.secret)
+				.parseClaimsJws(token);
 			return true;
 		} catch (Exception e) {
 			return false;
