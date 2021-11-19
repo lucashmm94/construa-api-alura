@@ -51,7 +51,8 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests() // autorirar requições
 				.antMatchers(HttpMethod.GET, "/topicos").permitAll() // qual url filtra(permitir ou bloquear)
 				.antMatchers(HttpMethod.GET, "/topicos/*").permitAll()// Se nao falar o metodo http, libera tudo
-				.antMatchers(HttpMethod.POST, "/auth").permitAll().anyRequest().authenticated() // Qualquer outra
+				.antMatchers(HttpMethod.GET, "/actuator/**").permitAll().anyRequest().authenticated()// Qualquer outra
+				.antMatchers(HttpMethod.POST, "/auth").permitAll().anyRequest().authenticated()
 																								// requisição tem que
 																								// autenticar;
 //		.and().formLogin(); //Spring gerar formulario de autentição, cria sessao(nao ideal)
