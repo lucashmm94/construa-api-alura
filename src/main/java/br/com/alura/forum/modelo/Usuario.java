@@ -84,6 +84,7 @@ public class Usuario implements UserDetails {
 		this.senha = senha;
 	}
 
+	//Lista de perfis(roles: admin,usuarioe  etc)
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() { //qual é o perfil
 		return this.perfis;

@@ -14,6 +14,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import br.com.alura.forum.repositories.UsuarioRepository;
+
 @EnableWebSecurity
 @Configuration
 public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
@@ -23,6 +25,9 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
 	private AutenticacaoService autenticacaoService;
+	
+	@Autowired
+	private UsuarioRepository usuarioRepository;
 
 	@Override
 	@Bean
@@ -31,7 +36,7 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 		return super.authenticationManager();
 	}
 
-	// Configura de autenticacao
+	// Configura de autenticacao(recebe um usuario e senha, caso não exista ele retorna uma UsernameNotFoundException, caso tenha segue o fluxo normal)
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		// Sobe ao iniciar a aplicação
@@ -52,14 +57,10 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 //		.and().formLogin(); //Spring gerar formulario de autentição, cria sessao(nao ideal)
 				.and().csrf().disable() // Via token não precisa validar essa config anti hacker;
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Cria sessao stateless
-				.and().addFilterBefore(new AutenticacaoViaTokenFilter(tokenService), UsernamePasswordAuthenticationFilter.class);// Filtro
-																														// para
-																														// validar
-																														// se
-																														// o
-																														// token
-																														// é
-																														// valido , antes de rodar autenticação pegar o filtro
+				.and().addFilterBefore(new AutenticacaoViaTokenFilter(tokenService, usuarioRepository), UsernamePasswordAuthenticationFilter.class);// Classe criada AutenticacaoViaTokenFilter																														// para
+																														//  para ser executada antes do Spring Padrao
+																														// Nessa classe, se recupera o token 
+																														//e valida o token e pede o Spring para validar o token também
 	}
 
 	// Configura arquivos estasticos(js,css,imagens,etc).
